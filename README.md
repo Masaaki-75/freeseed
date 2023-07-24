@@ -1,5 +1,5 @@
 # FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction
-This is the official implementation of the paper "FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction" ([arxiv](https://arxiv.org/abs/2307.05890)) based on [torch-radon toolbox](https://github.com/matteo-ronchetti/torch-radon/tree/master).
+This is the official implementation of the paper "FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction" based on [torch-radon toolbox](https://github.com/matteo-ronchetti/torch-radon/tree/master). The pre-print version can be found in [arxiv](https://arxiv.org/abs/2307.05890); camera-ready version will be soon released.
 
 
 ## Requirements
@@ -30,7 +30,7 @@ The AAPM-Myo dataset can be downloaded from: [CT Clinical Innovation Center](htt
 
 
 ## Training & Inference
-Please check `train.sh` (or `test.sh`) for the corresponding scripts once the data is well prepared. Specify the dataset path and other setting in the script, and simply run the script in the terminal.
+Please check `train.sh` for training script (or `test.sh` for inference script) once the data is well prepared. Specify the dataset path and other setting in the script, and simply run it in the terminal.
 
 
 
