@@ -40,18 +40,18 @@ class DuDoFreeNetTrainer(BasicTrainer):
                 self.wandb_init(self.opt)
         self.itlog_intv = opt.log_interval
 
-    def generate_sparse_and_gt_data(self, mu_ct, return_sinomask=False):
+    def generate_sparse_and_gt_data(self, mu_ct, return_sinomask=False, mixed_interp=True):
         if return_sinomask:
             try:
-                sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask = self.net.generate_sparse_and_full_dudo(mu_ct, return_sinomask=return_sinomask)
+                sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask = self.net.generate_sparse_and_full_dudo(mu_ct, return_sinomask=return_sinomask, mixed_interp=mixed_interp)
             except nn.modules.module.ModuleAttributeError:
-                sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask = self.net.module.generate_sparse_and_full_dudo(mu_ct, return_sinomask=return_sinomask)
+                sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask = self.net.module.generate_sparse_and_full_dudo(mu_ct, return_sinomask=return_sinomask, mixed_interp=mixed_interp)
             return sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask
         else:
             try:
-                sparse_sinogram, sparse_mu, sinogram_full, gt_mu = self.net.generate_sparse_and_full_dudo(mu_ct,)
+                sparse_sinogram, sparse_mu, sinogram_full, gt_mu = self.net.generate_sparse_and_full_dudo(mu_ct, mixed_interp=mixed_interp)
             except nn.modules.module.ModuleAttributeError:
-                sparse_sinogram, sparse_mu, sinogram_full, gt_mu = self.net.module.generate_sparse_and_full_dudo(mu_ct,)
+                sparse_sinogram, sparse_mu, sinogram_full, gt_mu = self.net.module.generate_sparse_and_full_dudo(mu_ct, mixed_interp=mixed_interp)
             return sparse_sinogram, sparse_mu, sinogram_full, gt_mu
 
     # reconstruct_trainer fit
@@ -95,13 +95,16 @@ class DuDoFreeNetTrainer(BasicTrainer):
             self.val_dataset, batch_size=1, num_workers=opt.num_workers, sampler=val_sampler,)
 
         # init and resume optimizer
-        self.optimizer = self.get_optimizer(self.net)
+        self.optimizer = torch.optim.Adam(self.net.img_net.parameters(), lr=opt.lr)  # for full training
+        self.optimizer2 = torch.optim.Adam(self.net.parameters(), lr=opt.pretrain_lr)  # for FreeNet pretraining
         self.scheduler = self.get_scheduler(self.optimizer)
 
-        if self.opt.resume_opt:
-            self.resume_opt()
-            print(f'resumed optimizers at epoch {self.epoch}.')
-
+        # start pretraining
+        for epoch in range(opt.pretrain_epochs):
+            print(f'start pre-training epoch: {epoch}')
+            self.train_loader.sampler.set_epoch(epoch)
+            self.pretrain()
+        
         # start training
         start_epoch = self.epoch
         self.iter = 0
@@ -116,16 +119,46 @@ class DuDoFreeNetTrainer(BasicTrainer):
                 self.save_model()
                 #self.save_opt()
 
+    @staticmethod
+    def set_requires_grad(nets, requires_grad=False):
+        if not isinstance(nets, list):
+            nets = [nets]
+        for net in nets:
+            if net is not None:
+                for param in net.parameters():
+                    param.requires_grad = requires_grad
+    
+    def pretrain(self):
+        self.net = self.net.train()
+        self.set_requires_grad(self.net.sino_net, False)  # freeze sinogram domain network first
+        pbar = tqdm.tqdm(self.train_loader, ncols=60) if self.opt.use_tqdm else self.val_loader
+        for i, data in enumerate(pbar):  # one batch contain different images
+            mu_ct = data.to('cuda')
+            
+            sparse_sinogram, sparse_mu, _, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+            output_mu, _, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=True)
+            loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu)
+            
+            self.optimizer2.zero_grad()
+            loss.backward()
+            self.optimizer2.step()
+                
+            if self.opt.use_tqdm:
+                pbar.set_postfix({'loss': '%.2f' % (loss.item())})
+                pbar.update(1)
+    
+    
     def train(self,):
         self.iter_log_flag = False
         losses, rmses, psnrs, ssims = [], [], [], []
 
         # train the model
         self.net = self.net.train()
+        self.set_requires_grad(self.net.sino_net, True)
         pbar = tqdm.tqdm(self.train_loader, ncols=60) if self.opt.use_tqdm else self.val_loader
         for i, data in enumerate(pbar):
             mu_ct = data.to('cuda')
-            sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True)
+            sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
             output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu,)
             loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu) + self.criterion(ouput_sinogram, gt_sinogarm)
             
