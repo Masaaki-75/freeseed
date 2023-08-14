@@ -114,11 +114,14 @@ class DuDoFreeNet(BasicSparseWrapper):
         self.sino_net = MaskUNet(1, 1)
         self.img_net = FreeNet(2, 1, **freenet_kwargs, **wrapper_kwargs)
     
-    def forward(self, sparse_sino, sparse_sino_mask, sparse_mu):
-        sino = self.sino_net(sparse_sino, sparse_sino_mask)
+    def forward(self, sparse_sino, sparse_sino_mask, sparse_mu, global_skip=True, only_train_img_net=False):
+        if only_train_img_net:
+            sino = sparse_sino  # should be linearly interpolated
+        else:
+            sino = self.sino_net(sparse_sino, sparse_sino_mask)
         ril_mu = self.radon(sino)
         neg_art, _ = self.img_net(torch.cat((ril_mu, sparse_mu), dim=1))
-        pred_mu = neg_art + sparse_mu
+        pred_mu = neg_art + sparse_mu if global_skip else neg_art
         return pred_mu, sino, ril_mu
 
 
