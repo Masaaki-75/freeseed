@@ -53,13 +53,14 @@ num_views=72
 network='dudofreenet'
 CUDA_VISIBLE_DEVICES="0" python -m torch.distributed.launch \
 --master_port 10023 --nproc_per_node 1 \
-main.py --epochs $epochs \
+main.py --epochs 20 \
 --lr 1e-4 --optimizer 'adam' \
+--pretrain_lr 1e-4 --pretrain_epochs 10 \
 --scheduler 'step' --step_size 10 --step_gamma 0.5 \
 --dataset_name 'aapm' --dataset_shape $dataset_shape \
 --num_views $num_views \
 --network $network \
---net_dict "{'ratio_ginout':0.5}" \
+--net_dict "{'ratio_ginout':0.5,'mask_type':'bp-gaussian-mc'}" \
 --use_mask True --soft_mask False \
 --loss 'l2' --trainer_mode 'train' \
 --tensorboard_root $res_dir'/freeseed/tb' \

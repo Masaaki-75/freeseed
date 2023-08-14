@@ -45,7 +45,7 @@ def get_parser():
     parser.add_argument('--drop_last', default=False, type=bool, help='dataloader droplast')
     # optimizer
     parser.add_argument('--optimizer', default='adam', type=str, help='name of the optimizer')
-    parser.add_argument('--lr', default=0.001, type=float, help='initial learning rate')    
+    parser.add_argument('--lr', default=1e-4, type=float, help='initial learning rate')    
     parser.add_argument('--beta1', default=0.5, type=float, help='Adam beta1')    
     parser.add_argument('--beta2', default=0.999, type=float, help='Adam beta2')
     parser.add_argument('--momentum', default=0.9, type=float, help='momentum for SGD optimizer')
@@ -69,8 +69,7 @@ def get_parser():
         
     # network hyper args
     parser.add_argument('--trainer_mode', default='train', type=str, help='train or test')
-    parser.add_argument('--ablation_mode', default='sparse', type=str, help='default sparse, cycle: cycle_sparse')
-    parser.add_argument('--loss', default='l1', type=str, help='loss type')
+    parser.add_argument('--loss', default='l2', type=str, help='loss type')
     parser.add_argument('--loss2', default='l2', type=str, help='another loss type')
     parser.add_argument('--network', default='', type=str, help='networkname')
     
@@ -87,6 +86,8 @@ def get_parser():
     # freeseed args
     parser.add_argument('--use_mask', default=False, type=bool,)
     parser.add_argument('--soft_mask', default=True, type=bool,)
+    parser.add_argument('--pretrain_lr', default=1e-4, type=float, help='pretraining learning rate of FreeNet in DuDoFree')
+    parser.add_argument('--pretrain_epochs', default=10, type=int, help='pretrianing epochs of FreeNet in DuDoFree')
     return parser
 
 
