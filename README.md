@@ -2,7 +2,7 @@
 This is the official implementation of the paper "FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction" based on [torch-radon toolbox](https://github.com/matteo-ronchetti/torch-radon/tree/master). The pre-print version can be found in [arxiv](https://arxiv.org/abs/2307.05890); camera-ready version will be soon released.
 
 ## Updates
-- Aug, 2023: fixed bugs in `dudo_trainer.py`, `basic_wrapper_v2.py` and `dudofree.py`
+- Aug, 2023: fixed bugs in `dudo_trainer.py` (and corresponding details in `basic_wrapper_v2.py`, `dudofree.py`, `main.py`, `train.sh`)
 - Jul, 2023: initial commit.
 
 ## Requirements
