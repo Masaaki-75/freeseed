@@ -163,6 +163,17 @@ def sparse_main(opt):
 if __name__ == '__main__':
     parser = get_parser()
     opt = parser.parse_args()
+    
+    seed = 3407
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)  # if using multiple gpu
+    torch.backends.cudnn.benchmark = False
+    torch.backends.cudnn.deterministic = True
+    
     sparse_main(opt)
 
 
