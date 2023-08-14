@@ -40,7 +40,7 @@ class DuDoFreeNetTrainer(BasicTrainer):
                 self.wandb_init(self.opt)
         self.itlog_intv = opt.log_interval
 
-    def generate_sparse_and_gt_data(self, mu_ct, return_sinomask=False, mixed_interp=True):
+    def generate_sparse_and_gt_data(self, mu_ct, return_sinomask=False, mixed_interp=False):
         if return_sinomask:
             try:
                 sparse_sinogram, sparse_mu, sinogram_full, gt_mu, sino_mask = self.net.generate_sparse_and_full_dudo(mu_ct, return_sinomask=return_sinomask, mixed_interp=mixed_interp)
@@ -135,7 +135,7 @@ class DuDoFreeNetTrainer(BasicTrainer):
         for i, data in enumerate(pbar):  # one batch contain different images
             mu_ct = data.to('cuda')
             
-            sparse_sinogram, sparse_mu, _, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+            sparse_sinogram, sparse_mu, _, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=False)
             output_mu, _, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=True)
             loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu)
             
@@ -158,7 +158,7 @@ class DuDoFreeNetTrainer(BasicTrainer):
         pbar = tqdm.tqdm(self.train_loader, ncols=60) if self.opt.use_tqdm else self.val_loader
         for i, data in enumerate(pbar):
             mu_ct = data.to('cuda')
-            sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+            sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=False)
             output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=False)
             loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu) + self.criterion(ouput_sinogram, gt_sinogarm)
             
@@ -218,7 +218,7 @@ class DuDoFreeNetTrainer(BasicTrainer):
         with torch.no_grad():
             for i, data in enumerate(pbar):
                 mu_ct = data.to('cuda')
-                sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+                sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=False)
                 output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=False)
                 loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu) + self.criterion(ouput_sinogram, gt_sinogarm)
                 
