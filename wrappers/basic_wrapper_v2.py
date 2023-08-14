@@ -2,6 +2,7 @@ import torch
 import numpy as np
 import torch.nn as nn
 from torch_radon import Radon, RadonFanbeam
+import torch.nn.functional as F
 
 """
 The wrappers are used to provide methods for preparing sparse-view input data.
@@ -68,25 +69,37 @@ class BasicSparseWrapper(nn.Module):
 
     
     # ------------ dual-domain sparse-view CT data generation ----------------
-    def generate_sparse_and_full_dudo(self, mu_ct, return_sinomask=False):
+    def generate_sparse_and_full_dudo(self, mu_ct, return_sinomask=False, mixed_interp=False):
         full_sinogram = self.image_radon(mu_ct)
+        sparse_sinogram = self.image_radon(mu_ct, self.num_views)
         full_mu = self.radon(full_sinogram)
         # sinogram_full = self.add_noise(sinogram_full)
         
-        sparse_sinogram_mask = self.generate_sparse_sinogram_mask(self.num_views)
-        sparse_sinogram = (sparse_sinogram_mask * full_sinogram.permute(0,1,3,2)).permute(0,1,3,2)
-        sparse_sinogram_reduce = full_sinogram.permute(0,1,3,2)[..., sparse_sinogram_mask != 0].permute(0,1,3,2).contiguous()
+        sparse_mask_vec = self.generate_sparse_sinogram_mask(self.num_views)  # [Nv]
+        
+        bs = full_sinogram.shape[0]
+        num_det = full_sinogram.shape[-1]
+        sparse_mask = sparse_mask.reshape(1, 1, len(sparse_mask), 1)  # [1, 1, Nv]
+        sparse_mask = sparse_mask.repeat_interleave(num_det, dim=-1).repeat_interleave(bs, dim=0)  # [B, 1, Nv, Nd]
+        
+        if mixed_interp:
+            interp_sinogram = F.interpolate(sparse_sinogram, size=full_sinogram.shape[2:], mode='bilinear')
+            sparse_sinogram = sparse_mask * full_sinogram + (1 - sparse_mask) * interp_sinogram
+        else:
+            sparse_sinogram = sparse_mask * full_sinogram
+            
+        sparse_sinogram_reduce = full_sinogram.permute(0,1,3,2)[..., sparse_mask_vec != 0].permute(0,1,3,2).contiguous()
         sparse_mu = self.radon(sparse_sinogram_reduce, num_views=self.num_views)
+        
         if return_sinomask:
-            sparse_sinogram_mask = (sparse_sinogram_mask * torch.ones_like(sparse_sinogram.permute(0,1,3,2))).permute(0,1,3,2).contiguous()
-            return sparse_sinogram, sparse_mu, full_sinogram, full_mu, sparse_sinogram_mask
+            return sparse_sinogram, sparse_mu, full_sinogram, full_mu, sparse_mask
         else:
             return sparse_sinogram, sparse_mu, full_sinogram, full_mu
     
     def generate_sparse_sinogram_mask(self, num_views):
         sinogram_mask = np.arange(1, self.num_full_views+1)
         sinogram_mask = np.ma.masked_equal(sinogram_mask % (self.num_full_views // num_views), 1)
-        sinogram_mask = sinogram_mask.mask.astype(np.int32)
+        sinogram_mask = sinogram_mask.mask.astype(np.int32)  # [Nv,]
         sinogram_mask = torch.from_numpy(sinogram_mask).cuda()
         return sinogram_mask
 
