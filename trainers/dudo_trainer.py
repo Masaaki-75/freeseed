@@ -159,7 +159,7 @@ class DuDoFreeNetTrainer(BasicTrainer):
         for i, data in enumerate(pbar):
             mu_ct = data.to('cuda')
             sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
-            output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu,)
+            output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=False)
             loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu) + self.criterion(ouput_sinogram, gt_sinogarm)
             
             self.optimizer.zero_grad()
@@ -218,8 +218,8 @@ class DuDoFreeNetTrainer(BasicTrainer):
         with torch.no_grad():
             for i, data in enumerate(pbar):
                 mu_ct = data.to('cuda')
-                sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True)
-                output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu,)
+                sparse_sinogram, sparse_mu, gt_sinogarm, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+                output_mu, ouput_sinogram, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=False)
                 loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu) + self.criterion(ouput_sinogram, gt_sinogarm)
                 
                 losses.append(loss.item())
