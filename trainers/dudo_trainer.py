@@ -135,7 +135,9 @@ class DuDoFreeNetTrainer(BasicTrainer):
         for i, data in enumerate(pbar):  # one batch contain different images
             mu_ct = data.to('cuda')
             
-            sparse_sinogram, sparse_mu, _, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=False)
+            sparse_sinogram, sparse_mu, _, gt_mu, sino_mask = self.generate_sparse_and_gt_data(mu_ct, return_sinomask=True, mixed_interp=True)
+            # First warm the FreeNet up by feeding concatenation of X1 (sparse-view CT image) and X2 (FBP of linearly interpolated sinogram).
+            # When the warm-up finishes, 'X2' will be provided by sinogram domain sub-network.
             output_mu, _, output_sino_img = self.net(sparse_sinogram, sino_mask, sparse_mu, only_train_img_net=True)
             loss = self.criterion(output_mu, gt_mu) + self.criterion(output_sino_img, gt_mu)
             
