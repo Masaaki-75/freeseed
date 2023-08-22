@@ -84,7 +84,7 @@ class BasicSparseWrapper(nn.Module):
         
         if mixed_interp:
             interp_sinogram = F.interpolate(sparse_sinogram, size=full_sinogram.shape[2:], mode='bilinear')
-            sparse_sinogram = sparse_mask * full_sinogram + (1 - sparse_mask) * interp_sinogram
+            sparse_sinogram = interp_sinogram #* (1 - sparse_mask) + sparse_mask * full_sinogram
         else:
             sparse_sinogram = sparse_mask * full_sinogram
             
