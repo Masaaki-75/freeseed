@@ -35,10 +35,10 @@ The AAPM-Myo dataset can be downloaded from: [CT Clinical Innovation Center](htt
 ## Training & Inference
 Please check `train.sh` for training script (or `test.sh` for inference script) once the data is well prepared. Specify the dataset path and other setting in the script, and simply run it in the terminal.
 
-Notably, it is time-consuming to directly train sinogram-domain sub-network and image-domain sub-network of FreeSeed<sub>DUDO</sub> simultaneously. 
-A more efficient way is to:
-- First, warm up the image-domain FreeNet first with image-domain losses (pixel loss and/or SeedNet loss);
-- Then, jointly train the two sub-networks with dual-domain losses (pixel loss, sinogram loss, and Radon consistency loss), as in `dudo_trainer.py`.
+Notably, it is time-consuming to directly train sinogram-domain sub-network and image-domain sub-network of FreeSeed<sub>DUDO</sub> using a combination of loss functions simultaneously. 
+A more efficient way, as in `dudo_trainer.py`, is to:
+- First, warm up the image-domain FreeNet first with image-domain losses (pixel loss and/or SeedNet loss) for a few epochs;
+- Then, jointly train the two sub-networks with dual-domain losses (pixel loss, sinogram loss, and Radon consistency loss) for the rest epochs.
 
 
 
