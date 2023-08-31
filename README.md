@@ -5,6 +5,20 @@ This is the official implementation of the paper "FreeSeed: Frequency-band-aware
 - Aug, 2023: fixed bugs in `dudo_trainer.py` (and corresponding details in `basic_wrapper_v2.py`, `dudofree.py`, `main.py`, `train.sh`)
 - Jul, 2023: initial commit.
 
+
+## Data Preparation
+The AAPM-Myo dataset can be downloaded from: [CT Clinical Innovation Center](https://ctcicblog.mayo.edu/2016-low-dose-ct-grand-challenge/)
+(or the [box link](https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h/folder/144594475090)). Please walk through `./datasets/process_aapm.ipynb` for more details on preparing the dataset.
+
+
+## Training & Inference
+Please check `train.sh` for training script (or `test.sh` for inference script) once the data is well prepared. Specify the dataset path and other setting in the script, and simply run it in the terminal.
+
+Notably, it is time-consuming to directly train sinogram-domain sub-network and image-domain sub-network of FreeSeed<sub>DUDO</sub> using a combination of loss functions simultaneously. 
+A more efficient way, as in `dudo_trainer.py`, is to:
+- First, warm up the image-domain FreeNet first with image-domain losses (pixel loss and/or SeedNet loss) for a few epochs;
+- Then, jointly train the two sub-networks with dual-domain losses (pixel loss, sinogram loss, and Radon consistency loss) for the rest epochs.
+
 ## Requirements
 ```
 - Linux Platform
@@ -24,23 +38,6 @@ This is the official implementation of the paper "FreeSeed: Frequency-band-aware
 - wandb==0.15.2  # optional
 - tqdm==4.65.0  # optional
 ```
-
-
-## Data Preparation
-The AAPM-Myo dataset can be downloaded from: [CT Clinical Innovation Center](https://ctcicblog.mayo.edu/2016-low-dose-ct-grand-challenge/)
-(or the [box link](https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h/folder/144594475090)). Please walk through `./datasets/process_aapm.ipynb` for more details on preparing the dataset.
-
-
-
-## Training & Inference
-Please check `train.sh` for training script (or `test.sh` for inference script) once the data is well prepared. Specify the dataset path and other setting in the script, and simply run it in the terminal.
-
-Notably, it is time-consuming to directly train sinogram-domain sub-network and image-domain sub-network of FreeSeed<sub>DUDO</sub> using a combination of loss functions simultaneously. 
-A more efficient way, as in `dudo_trainer.py`, is to:
-- First, warm up the image-domain FreeNet first with image-domain losses (pixel loss and/or SeedNet loss) for a few epochs;
-- Then, jointly train the two sub-networks with dual-domain losses (pixel loss, sinogram loss, and Radon consistency loss) for the rest epochs.
-
-
 
 ## Other Notes
 We choose torch-radon toolbox because it processes tomography real fast! For those who have problems installing torch-radon toolbox:
