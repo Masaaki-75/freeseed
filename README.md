@@ -1,5 +1,5 @@
 # FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction
-This is the official implementation of the paper "FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction" based on [torch-radon toolbox](https://github.com/matteo-ronchetti/torch-radon/tree/master). The pre-print version can be found in [arxiv](https://arxiv.org/abs/2307.05890); camera-ready version will be soon released.
+This is the official implementation of the paper "FreeSeed: Frequency-band-aware and Self-guided Network for Sparse-view CT Reconstruction" ([arxiv](https://arxiv.org/abs/2307.05890), [springer](https://link.springer.com/chapter/10.1007/978-3-031-43999-5_24)).
 
 ## Updates
 - Aug, 2023: fixed bugs in `dudo_trainer.py` (and corresponding details in `basic_wrapper_v2.py`, `dudofree.py`, `main.py`, `train.sh`)
@@ -40,7 +40,7 @@ A more efficient way, as in `dudo_trainer.py`, is to:
 ```
 
 ## Other Notes
-We choose torch-radon toolbox because it processes tomography real fast! For those who have problems installing torch-radon toolbox:
+We choose [torch-radon toolbox](https://github.com/matteo-ronchetti/torch-radon/tree/master) to build our framework because it processes tomography really fast! For those who have problems installing torch-radon toolbox:
 - There seems to be other forks of torch-radon like [this](https://github.com/faebstn96/torch-radon) that can be installed via `python setup.py install` without triggering too many compilation errors🤔.
 - Check the [issues](https://github.com/matteo-ronchetti/torch-radon/issues) of torch-radon (both open & closed), since there is discussion about any possible errors you may encounter during installation.
 
