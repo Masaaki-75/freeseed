@@ -41,8 +41,8 @@ A more efficient way, as in `dudo_trainer.py`, is to:
 
 ## Other Notes
 We choose torch-radon toolbox because it processes tomography real fast! For those who have problems installing torch-radon toolbox:
-- There's other forks of torch-radon like [this](https://github.com/faebstn96/torch-radon) that can be installed via `python setup.py install` without triggering too many compilation errors🤔.
-- Check the [issues](https://github.com/matteo-ronchetti/torch-radon/issues) of torch-radon (both open & closed), since there is discussion about any possible errors you may encountered when installing it.
+- There seems to be other forks of torch-radon like [this](https://github.com/faebstn96/torch-radon) that can be installed via `python setup.py install` without triggering too many compilation errors🤔.
+- Check the [issues](https://github.com/matteo-ronchetti/torch-radon/issues) of torch-radon (both open & closed), since there is discussion about any possible errors you may encounter during installation.
 
 
 
