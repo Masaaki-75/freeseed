@@ -79,8 +79,8 @@ class BasicSparseWrapper(nn.Module):
         
         bs = full_sinogram.shape[0]
         num_det = full_sinogram.shape[-1]
-        sparse_mask = sparse_mask.reshape(1, 1, len(sparse_mask), 1)  # [1, 1, Nv]
-        sparse_mask = sparse_mask.repeat_interleave(num_det, dim=-1).repeat_interleave(bs, dim=0)  # [B, 1, Nv, Nd]
+        sparse_mask = sparse_mask_vec.reshape(1, 1, len(sparse_mask_vec), 1)  # [1, 1, Nv]
+        sparse_mask = sparse_mask.repeat(bs, 1, 1, num_det).float()  # [B, 1, Nv, Nd]
         
         if mixed_interp:
             interp_sinogram = F.interpolate(sparse_sinogram, size=full_sinogram.shape[2:], mode='bilinear')
