@@ -105,7 +105,7 @@ def sparse_main(opt):
     elif net_name == 'freenet':
         mask_type = 'bp-gaussian-mc'
         net_dict = dict(
-            ratio_ginout=0.5, 
+            ratio_ginout=0.5, min_channels=64,
             mask_type_init=mask_type, mask_type_down=mask_type,
             fft_size=(opt.dataset_shape, opt.dataset_shape // 2 + 1))
         net_dict.update(eval(opt.net_dict))
@@ -127,7 +127,7 @@ def sparse_main(opt):
         # use 'freeseed_0.5_1_5' as an example to specify arguments for SeedNet
         mask_type = 'bp-gaussian-mc'
         freenet_dict = dict(
-            ratio_ginout=0.5,
+            ratio_ginout=0.5, min_channels=64,
             mask_type_init=mask_type, mask_type_down=mask_type,
             fft_size=(opt.dataset_shape, opt.dataset_shape // 2 + 1))
         freenet_dict.update(eval(opt.net_dict))
