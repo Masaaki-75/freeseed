@@ -8,7 +8,7 @@ This is the official implementation of the paper "FreeSeed: Frequency-band-aware
 
 ## Data Preparation
 The AAPM-Myo dataset can be downloaded from: [CT Clinical Innovation Center](https://ctcicblog.mayo.edu/2016-low-dose-ct-grand-challenge/)
-(or the [box link](https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h/folder/144594475090)). Please walk through `./datasets/process_aapm.ipynb` for more details on preparing the dataset.
+(or the [box link](https://aapm.app.box.com/s/eaw4jddb53keg1bptavvvd1sf4x3pe9h/folder/144594475090)). ~~Please walk through `./datasets/process_aapm.ipynb` for more details on preparing the dataset.~~ Please see [here](https://github.com/Masaaki-75/freeseed/issues/4) for simple data preprocessing.
 
 
 ## Training & Inference
